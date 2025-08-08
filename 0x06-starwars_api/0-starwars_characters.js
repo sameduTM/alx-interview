@@ -13,7 +13,6 @@ rp(apiUrl)
         const char = await rp(characters[i]);
         console.log(JSON.parse(char).name);
       }
-      console.log('Done!');
     }
     getCharacter();
   })
