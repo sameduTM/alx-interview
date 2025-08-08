@@ -1,21 +1,28 @@
 #!/usr/bin/node
-const rp = require('request-promise');
+const request = require('request');
 
 const movieID = process.argv[2];
 
 const apiUrl = `https://swapi-api.alx-tools.com/api/films/${movieID}`;
 
-rp(apiUrl)
-  .then(function (resp) {
-    const characters = JSON.parse(resp).characters;
-    async function getCharacter () {
-      for (let i = 0; i < characters.length; i++) {
-        const char = await rp(characters[i]);
-        console.log(JSON.parse(char).name);
-      }
-    }
-    getCharacter();
-  })
-  .catch(function (err) {
+request(apiUrl, (err, response, body) => {
+  if (err) {
     console.error(err);
-  });
+    return;
+  }
+  const characters = JSON.parse(body).characters;
+
+  function printCharacter (index) {
+    if (index >= characters.length) return;
+    request(characters[index], (err, res, body) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log(JSON.parse(body).name);
+      printCharacter(index + 1); // Process the next character
+    });
+  }
+
+  printCharacter(0); // Start with the first character
+});
